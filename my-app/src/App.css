@@ -23,8 +23,32 @@ body {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.App-main {
-  padding: 2rem;
+.App main {
+  display: flex;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+}
+
+.form-container, .login-form, .signup-form{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 20px;
+}
+
+.login-button, .signup-button{
+  background-color: #444;
+  border: none;
+  color: #f0f0f0;
+  padding: 2px 8px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 14px;
+  margin: 0 4px;
+  cursor: pointer;
+  border-radius: 4px;
 }
 
 h1 {
@@ -44,7 +68,7 @@ h1 {
   background-color: #444;
   border: none;
   color: #f0f0f0;
-  padding: 8px 16px;
+  padding: 6px 12px;
   text-align: center;
   text-decoration: none;
   display: inline-block;
@@ -58,3 +82,4 @@ h1 {
 .header-button:hover {
   background-color: #555;
 }
+
