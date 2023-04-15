@@ -83,3 +83,59 @@ h1 {
   background-color: #555;
 }
 
+.profilecentered {
+  display:flex;
+  justify-content: center;
+}
+
+.pics {
+  max-width: 20%;
+  height: 200px;
+}
+
+.layoutProfile {
+  width: 100%;
+  height: 100vh;
+  display: grid;
+  grid-gap: 10px;
+  grid-template-areas: 
+  'titleprofile'
+  'photoprofile'
+  'albumprofile'
+  'friendsprofile'
+  'recFriendsprofile';
+}
+
+.titleprofile {
+  grid-area: titleprofile;
+  background-color: grey;
+}
+.photoprofile {
+  grid-area: photoprofile;
+  background-color: grey;
+}
+.albumprofile {
+  grid-area: albumprofile;
+  background-color: grey;
+}
+.friendsprofile {
+  grid-area: friendsprofile;
+  background-color: grey;
+}
+.recFriendsprofile {
+  grid-area: recFriendsprofile;
+  background-color: grey;
+}
+
+@media only screen and (min-width: 640px) {
+  .layoutProfile {
+    width: 100%;
+    height: 100vh;
+    display: grid;
+    grid-template-columns: 10fr 4fr 4fr;
+    grid-template-rows: 3fr 4fr 4fr;
+    grid-template-areas: 'titleprofile titleprofile friendsprofile'
+                         'photoprofile albumprofile friendsprofile'
+                         'photoprofile albumprofile recFriendsprofile'
+  }
+}
