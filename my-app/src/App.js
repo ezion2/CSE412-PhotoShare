@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import './App.css';
 import { Login } from './Pages/Login';
 import { Signup } from './Pages/Signup';
-import {TopContributors} from './Pages/TopContributors';
+import { Contributions } from './Pages/Contributions';
 
 function App() {
   const [currentForm, setCurrentForm] = useState('login');
@@ -26,14 +26,11 @@ function App() {
           <button className="header-button" onClick={() => toggleForm('signup')}>
             Signup
           </button>
-            <button className="header-buttons">
-                See Top 10
-            </button>
-
+            
         </div>
       </header>
       <main className="App-Main">
-        {currentForm === 'login' ? <Login onFormSwitch={toggleForm} /> : <Signup onFormSwitch={toggleForm} />}
+        {currentForm === 'login' ? <Login onFormSwitch={toggleForm} />  : <Signup onFormSwitch={toggleForm} /> }
       </main>
     </div>
   );
