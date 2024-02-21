@@ -1,4 +1,4 @@
-# CSE 412
+# Photoshare
 ***<ins>Program Description</ins>***
 This program is meant to simulate an on-line photo social network system. This was built as a group assignment for CSE 412 (Database Management).
 
