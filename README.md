@@ -1,5 +1,5 @@
 # CSE 412
 ***<ins>Program Description</ins>***
-This program is meant to simulate a a GUI desktop application for a restaur. This was built as a group assignment for CSE 360 (Intro to Software Engineering).
+This program is meant to simulate an on-line photo social network system. This was built as a group assignment for CSE 412 (Database Management).
 
 **Programmer(s):** Zion Esemonu, Sean Do, Brian Zhen, Christian Walterson
