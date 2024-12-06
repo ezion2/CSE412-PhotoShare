@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="/css/app.css">
+        <title>Image Gallery</title>
+    </head>
+    <body>
+        
+        <!-- Have a add comment and add like/unlike button to each image -->
+        <!-- Add comment button should take you to a seperate page -->
+        <!-- Also a view comments button for each image, that takes you to a seperate page and shows all comments associated with an image -->
+        <!-- Like button should show how many likes, or when highlighted, show who liked it -->
+        <!-- Leave a like and view likes for a particular photo -->
+        <div class="gallery-header"> My Image Gallery 
+
+            <% if (messages.error) { %>
+                <div class="error-message">
+                  <strong><%= messages.error %> </strong>
+                </div>
+              <% } %> 
+
+        </div>
+        <div class="full-gallery" id="container-div">
+        </div>
+        <div id="list" class="center" style="display:none">
+            <p> <!-- Top X user contribution scores -->
+                <strong id="strongTxt"></strong>
+            </p>
+        </div>
+        <button id="returnBtn" type="submit" style="display:none">Return</button>
+
+        <div id="modal" class="modal">
+            <div class="modal-content">
+              <span class="close">&times;</span>
+              <h2 class="modal-text">Add Comment to Photo</h2>
+              <form id="commentForm">
+                <label for="comment" class="modal-text">Comment:</label><br>
+                <input type="text" id="comment" name="comment"><br><br>
+                <input type="submit" value="Submit">
+              </form>
+            </div>
+          </div>
+
+        <script>
+            const modal = document.getElementById('modal');
+            const closeBtn = document.getElementsByClassName('close')[0];
+            const commentForm = document.getElementById('commentForm');
+            closeBtn.onclick = function() {
+            modal.style.display = 'none';
+            }
+
+            photosQuery = 
+            `
+                SELECT photo_id, data, caption 
+                FROM photos 
+                WHERE user_id =
+            `
+            const url = 'http://localhost:4000/myGallery';
+            const options = {
+                method: 'POST',
+                headers: {'Content-Type': 'text/plain'},
+                body: photosQuery
+            }
+            fetch(url, options)
+            .then((response) => {
+                if(!response.ok)
+                {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then((data) => {
+                let date = new Date();
+                let year = date.getFullYear();
+                let month = ("0" + (date.getMonth() + 1)).slice(-2);
+                let day = ("0" + date.getDate()).slice(-2);
+                let formattedDate = `${year}-${month}-${day}`;
+                let submitData = ''
+                const parentDiv = document.getElementById('container-div');
+                for (let i = 0; i < data.length; i++)
+                {
+                    const galleryDiv = document.createElement('div');
+                    galleryDiv.classList.add('gallery-image');
+                    galleryDiv.setAttribute('id', `gallery-image${i}`);
+
+                    const newImg = document.createElement('img');
+                    newImg.src = `${data[i].data}`;
+
+                    const newCaptionDiv = document.createElement('div');
+                    newCaptionDiv.classList.add('img-caption');
+                    newCaptionDiv.textContent = `${data[i].caption}`;
+
+                    const newCommentButton = document.createElement('button')
+                    newCommentButton.classList.add(`openModalBtn${i}`)
+
+                    const newlikeButton = document.createElement('button')
+                    //newlikeButton.classList.add(`openModalBtn${i}`)
+                    newlikeButton.innerHTML = "Leave a like!";
+                    newlikeButton.setAttribute('data-special-value', 
+                    `{"user_id": "", "photo_id": "${data[i].photo_id}"}`);
+
+                    
+                    const newviewLikeButton = document.createElement('button')
+                    //newlikeButton.classList.add(`openModalBtn${i}`)
+                    newviewLikeButton.innerHTML = "View all likes!";
+                    newviewLikeButton.setAttribute('data-special-value',
+                    `{"index": "${i}", "photo_id": "${data[i].photo_id}"}`
+                    )
+
+
+                    newCommentButton.innerHTML = "Leave a comment!";
+                    newCommentButton.setAttribute('data-special-value', 
+                    `{"comment_id": "${(Date.now()) % 2147483647}", 
+                    "photo_id": "${data[i].photo_id}",
+                    "owner": "undefined",
+                    "date_left": "${formattedDate}"`);
+
+                    newCommentButton.addEventListener("click", () =>{
+                        modal.style.display = 'block';
+                        submitData = newCommentButton.dataset.specialValue
+                    })
+
+                    newlikeButton.addEventListener('click', leaveLike)
+                    newviewLikeButton.addEventListener('click', viewLikes)
+
+
+                    galleryDiv.appendChild(newImg);
+                    galleryDiv.appendChild(newCaptionDiv);
+                    galleryDiv.appendChild(newCommentButton);
+                    galleryDiv.appendChild(newlikeButton);
+                    galleryDiv.appendChild(newviewLikeButton);
+                    parentDiv.appendChild(galleryDiv)
+                }
+
+                window.onclick = function(event) {
+                    if (event.target == modal) {
+                        modal.style.display = 'none';
+                    }
+                }
+
+                function viewLikes(event)
+                {
+                    selectedTag = event.target
+                    submitData = JSON.parse(selectedTag.dataset.specialValue)
+                    console.log(submitData)
+                    likersQuery = 
+                    `
+                        SELECT DISTINCT u.first_name, u.last_name
+                        FROM Likes l
+                        JOIN users u ON l.user_id = u.user_id
+                        WHERE l.photo_id = ${submitData.photo_id};
+                    `
+                    const url = 'http://localhost:4000/query';
+                    const options =
+                    {
+                        method: 'POST',
+                        headers: {'Content-Type': 'text/plain'},
+                        body: likersQuery
+                    }
+                    fetch(url, options)
+                    .then((response) => 
+                    {
+                        console.log(response)
+                        if (!response.ok) 
+                        {
+                            location.reload()
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then((data) => {
+                        console.log(data)
+
+                        let galleryImages = document.querySelectorAll('.gallery-image');
+                        galleryImages.forEach(element => {
+                            if(element.id === `gallery-image${submitData.index}`)
+                            {
+                                return;
+                            }
+                            element.style.display = "none";
+                        })
+                        var returnButton = document.getElementById('returnBtn');
+                        var strongText = document.getElementById('strongTxt');
+                        strongText.textContent = `${data.length} users have left a like:`
+                        returnButton.style.display = "block";
+                        returnButton.onclick = function() 
+                        {
+                            location.reload();
+                        }
+                        const listContainer = document.getElementById("list");
+                        listContainer.style.display = "block"
+                        if(data.length >= 1)
+                        {
+                            const orderedList = document.createElement("ol");
+                            for(let i = 0; i < data.length; i++)
+                            {
+                                const listItem = document.createElement("li");
+                                const messageFormat = `${data[i].first_name} ${data[i].last_name}`
+                                listItem.appendChild(document.createTextNode(messageFormat));
+                                orderedList.appendChild(listItem);
+                            }
+                            listContainer.appendChild(orderedList);
+                        }
+                    })
+                    .catch(error => 
+                    {
+                        console.error('There was a problem with the fetch operation:', error);
+                    });
+                }
+
+                function leaveLike(event)
+                {
+                    selectedTag = event.target
+                    submitData = selectedTag.dataset.specialValue
+                    console.log(submitData)
+                    const url = 'http://localhost:4000/like';
+                    const options =
+                    {
+                        method: 'POST',
+                        headers: {'Content-Type': 'text/plain'},
+                        body: submitData
+                    }
+                    fetch(url, options)
+                    .then((response) => 
+                    {
+                        console.log(response)
+                        if (!response.ok) 
+                        {
+                            location.reload()
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .catch(error => 
+                    {
+                        console.error('There was a problem with the fetch operation:', error);
+                    });
+                }
+
+                // Submit form
+                commentForm.addEventListener('submit', (e) => 
+                {
+                    e.preventDefault();
+                    const comment = document.getElementById('comment').value;
+                    submitData = `${submitData}, "text": "${comment}"}`
+                    modal.style.display = 'none';
+                    const url = 'http://localhost:4000/comment';
+                    const options =
+                    {
+                        method: 'POST',
+                        headers: {'Content-Type': 'text/plain'},
+                        body: submitData
+                    }
+                    fetch(url, options)
+                    .then((response) => 
+                    {
+                        console.log(response)
+                        if (!response.ok) 
+                        {
+                            location.reload()
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .catch(error => 
+                    {
+                        console.error('There was a problem with the fetch operation:', error);
+                    });
+                });
+            })
+        </script>
+    </body>
+</html>

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+    <body>
+        <div id="galler-cont" class="gallery-header" style="display:none"> Query Results 
+        </div>
+        <div class="full-gallery" id="container-div" style="display:none">
+        </div>
+        <div id="list" class="center" style="display:block">
+            <p> <!-- Top X user contribution scores -->
+                <strong id="strongTxt"></strong>
+            </p>
+        </div>
+        <button id="returnBtn" type="submit" style="display:none">Return</button>
+        <div id="modal" class="modal">
+            <div class="modal-content">
+              <span class="close">&times;</span>
+              <h2 class="modal-text">Add Comment to Photo</h2>
+              <form id="commentForm">
+                <label for="comment" class="modal-text">Comment:</label><br>
+                <input type="text" id="comment" name="comment"><br><br>
+                <input type="submit" value="Submit">
+              </form>
+            </div>
+          </div>
+        
+        <head>
+            <link rel="stylesheet" href="/css/app.css">
+        </head>
+      <main class="App">
+          <!-- Set this container style to none when we display the images-->
+
+          <div id="form-cont" class="form-container" style="display:block">
+
+            <% if (messages.error) { %>
+                <div class="error-message">
+                  <strong><%= messages.error %> </strong>
+                </div>
+              <% } %> 
+
+            <div className="search-container">
+              <p>Upload a photo or create an album</p>
+              <div className="search-bar">
+                <form id="searchForm" action="/search" method="POST">
+                    <input type="text" name="searchText" placeholder="url or album name" />
+                    <select name="category" id="myDropdown" onchange="toggleRadio()">
+                        <option value="album" selected>Album</option>
+                        <option value="photo">Photo</option>
+                        <option value="delete">Delete</option>
+                    </select>
+                    <button id="searchBtn" type="submit">Go</button>
+                    <br>
+                    <div id="radioContainer"  style="display:none">
+                        <input type="radio" name="myRadio" value="photo" checked>Photo
+                        <input type="radio" name="myRadio" value="album" >Album
+                    </div>
+                    <select name="albumCat" id="myDropdownSelection" style="display:none">
+                        <input type="text" id="capText" name="captionText" placeholder="Enter caption" style="display:none"/>
+                        <input type="text" id="tagText" name="tagText" placeholder="Enter tag" style="display:none"/>
+                    </select>
+                </form>
+              </div>
+          </div>
+      </main>
+      <script>
+            const searchForm = document.getElementById('searchForm');
+            function toggleRadio() 
+            {
+                var dropdown = document.getElementById("myDropdown");
+                var dropSelect = document.getElementById("myDropdownSelection");
+                var captionSel = document.getElementById("capText");
+                var tagSelect = document.getElementById("tagText");
+                var radioContainer = document.getElementById("radioContainer");
+                
+                if (dropdown.value == "album") 
+                {
+                    dropSelect.style.display = "none";
+                    captionSel.style.display = "none"
+                    radioContainer.style.display = "none"
+                    tagSelect.style.display ="none"
+                } 
+                else if(dropdown.value == "photo")
+                {
+                    dropSelect.style.display = "block"
+                    captionSel.style.display = "block"
+                    tagSelect.style.display ="block"
+                    radioContainer.style.display = "none"
+                }
+                else
+                {
+                    dropSelect.style.display = "block";
+                    captionSel.style.display = "none"
+                    radioContainer.style.display = "block"
+                    tagSelect.style.display ="none"
+                }
+            }
+            albumsQuery = 
+            `
+                SELECT album_id, name 
+                FROM albums 
+                WHERE owner =
+            `
+            const url = 'http://localhost:4000/myGallery';
+            const options = {
+                method: 'POST',
+                headers: {'Content-Type': 'text/plain'},
+                body: albumsQuery
+            }
+            fetch(url, options)
+            .then((response) => 
+            {
+                if(!response.ok)
+                {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then((data) => {
+                console.log(data)
+                const myDropdownSelection = document.getElementById('myDropdownSelection');
+                const searchForm = document.getElementById('searchForm');
+                for (let i = 0; i < data.length; i++)
+                {
+                    const option = document.createElement('option');
+                    option.text = data[i].name;
+                    option.setAttribute('data-special-value', `{"album_id": "${data[i].album_id}"}`)
+                    myDropdownSelection.add(option)
+                }
+                searchForm.addEventListener('submit', (e) => 
+                {
+                    e.preventDefault();
+                    let specialAttribute;
+                    const selectElement = searchForm.elements["albumCat"];
+                    const selectedIndex = selectElement.selectedIndex;
+                    const selectedOption = selectElement.options[selectedIndex];
+                    if(selectedOption == undefined && searchForm.elements["category"].value != 'album')
+                    {
+                        alert("No albums to upload to.")
+                        return
+                    }
+                    if(selectedOption == undefined && searchForm.elements["category"].value == 'album')
+                    {
+                        specialAttribute = {album_id: -1};
+                        console.log(specialAttribute)
+                    }
+                    else
+                    {
+                        specialAttribute = JSON.parse(selectedOption.getAttribute("data-special-value"));
+                    }
+                    let date = new Date();
+                    let year = date.getFullYear();
+                    let month = ("0" + (date.getMonth() + 1)).slice(-2);
+                    let day = ("0" + date.getDate()).slice(-2);
+                    let formattedDate = `${year}-${month}-${day}`;
+                    const selectData = 
+                    {
+                        searchText: searchForm.elements["searchText"].value,
+                        category: searchForm.elements["category"].value,
+                        albumCat: searchForm.elements["albumCat"].value,
+                        album_id: specialAttribute.album_id,
+                        doc: formattedDate,
+                        caption: searchForm.elements["captionText"].value,
+                        tag: searchForm.elements["tagText"].value,
+                        myRadio: searchForm.elements["myRadio"].value
+                    }
+                    console.log(selectData)
+                    console.log(data) // check when uploading photo the length of this variable so we dont unpload to no albums
+                    const url = 'http://localhost:4000/upload';
+                    const options =
+                    {
+                        method: 'POST',
+                        headers: {'Content-Type': 'text/plain'},
+                        body: JSON.stringify(selectData)
+                    }
+                    if(selectData.category != "photo")
+                    {
+                        fetch(url, options)
+                        .then((response) => 
+                        {
+                            if(!response.ok) 
+                            {
+                                location.reload()
+                                throw new Error('Network response was not ok');
+                            }
+                            return response.json();
+                        })
+                        .then((data) => 
+                        {
+                            console.log(data)
+                            location.reload();
+                        })
+                    }
+                    else
+                    {
+                        if(data.length >= 1)
+                        {
+                            fetch(url, options)
+                            .then((response) => 
+                            {
+                                if(!response.ok) 
+                                {
+                                    location.reload()
+                                    throw new Error('Network response was not ok');
+                                }
+                                return response.json();
+                            })
+                            .then((data) => {
+                                console.log(data)
+                                location.reload();
+                            })
+                        }
+                        else
+                        {
+                            alert("No albums to insert into!");
+                        }
+                    }
+                })
+            })
+      </script>
+    </body>
+</html>

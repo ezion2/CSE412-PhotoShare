@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <head>
+      <link rel="stylesheet" href="/css/app.css">
+    </head>
+    <title>Simple Search Bar</title>
+    <style>
+        #search 
+        {
+            border: 1px solid #ccc;
+            padding: 5px;
+            width: 300px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        #search:focus 
+        {
+            border-color: blue;
+        }
+
+        .center 
+        {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-center;
+            margin: auto;
+            width: 45%;
+            border: 1px solid black;
+            padding: 10%;
+            box-sizing: border-box;
+        }
+        #profile-button {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        background-color: #eee;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    
+    <div id="list" class="center">
+        <p> <!-- Top X user contribution scores -->
+            <strong>Friends List</strong>
+        </p>
+    </div>
+    <button id="profile-button">Go to Profile</button>
+
+    <script>
+      function search() 
+      {
+        var query = document.getElementById("search").value;
+        // Do something with the search query
+        console.log("Search query: " + query);
+      }
+      userList = ``
+
+
+      const url = 'http://localhost:4000/listFriends';
+      const options = 
+      {
+        method: 'POST',
+        headers: {  'Content-Type': 'text/plain'},
+        body: userList
+      };
+
+      fetch(url, options)
+      .then(response => 
+      {
+        if (!response.ok) 
+        {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => 
+      {
+        console.log(data);
+        const listContainer = document.getElementById("list");
+        const orderedList = document.createElement("ol");
+        for (let i = 0; i < data.length; i++)
+        {
+          const listItem = document.createElement("li");
+          const messageFormat = `${data[i].first_name} ${data[i].last_name}`
+
+          const aPopTag = document.createElement('a');
+          aPopTag.setAttribute('href', '#');
+          aPopTag.setAttribute('data-special-value', `${data[i].user_id}`);
+          aPopTag.textContent = messageFormat
+
+          listItem.appendChild(aPopTag);
+          orderedList.appendChild(listItem);
+        }
+        listContainer.appendChild(orderedList);
+      })
+      .catch(error => 
+      {
+        console.error('There was a problem with the fetch operation:', error);
+      });
+    </script>
+  </body>
+</html>

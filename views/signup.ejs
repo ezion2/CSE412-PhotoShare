@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+    <body>
+        <head>
+            <link rel="stylesheet" href="/css/app.css">
+        </head>
+        <main class="App">
+            <div class="form-container">
+                <form id="register-form" class="signup-form" method="POST" action="/signup">
+                    <% if (messages.error) { %>
+                        <div class="error-message">
+                          <strong><%= messages.error %> </strong>
+                        </div>
+                      <% } %> 
+                    <label htmlFor="firstName">First Name</label>
+                    <br />
+                    <input  type="firstName" placeholder="first name" id="firstName" name="firstName" /> <br />
+                    <label htmlFor="LastName">Last Name</label>
+                    <br />
+                    <input  type="lastName" placeholder="last name" id="lastName" name="lastName" /> <br />
+                    <label htmlFor="email">email </label>
+                    <br />
+                    <input type="email" placeholder="email" id="email" name="email" /><br />
+                    <label htmlFor="password">password </label>
+                    <br />
+                    <input type="password" placeholder="******" id="password" name="password" /><br />
+                    <label htmlFor="homeTown">Home Town </label>
+                    <br />
+                    <input type="homeTown" placeholder="home town" id="homeTown" name="homeTown" />
+                    <br />
+                    <label htmlFor="gender">Gender</label>
+                    <br />
+                    <select id="gender" name="gender">
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="other">Other</option>
+                    </select>
+                    <br />
+                    <label htmlFor="dob">Date of Birth</label>
+                    <br />
+                    <input type="date" id="dob" name="dob" /> <br />
+                    <button id="submit-button" class='signup-button' type="submit">Sign Up</button>
+                </form>
+                <br />
+                <button onclick="window.location.href = '/login'">Already have an account? Login here</button>
+            </div>   
+        </main>
+        <script>
+        </script>
+    </body>
+</html>

@@ -1,0 +1,28 @@
+
+<!DOCTYPE html>
+<html>
+    <body>
+        <head>
+            <link rel="stylesheet" href="/css/app.css">
+        </head>
+    <main class="App">
+        <div class="form-container">
+            <form class="login-form" method="POST" action="/login">
+                <% if (messages.error) { %>
+                    <div class="error-message">
+                      <strong><%= messages.error %> </strong>
+                    </div>
+                  <% } %> 
+                <label for="email">email </label>
+                <input type="email" placeholder="email" id="email" name="email" />
+                <br />
+                <label for="password">password </label>
+                <input type="password" placeholder="******" id="password" name="password" />
+                <br />
+                <button class="login-button" type="submit">Login</button>
+            </form>
+            <button onclick="window.location.href = '/signup'">Don't have an account? Sign up here</button>
+          </div>   
+    </main>
+</body>
+</html>
